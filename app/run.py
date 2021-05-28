@@ -18,6 +18,7 @@ app = Flask(__name__)
 # load data
 engine = create_engine('sqlite:///../data/DisasterResponse.db')
 df = pd.read_sql_table('Messages', engine)
+categories = df.columns[4:]
 
 # load model
 model = pickle.load(open('../models/pretrained_classifiers/classifier.pkl', 'rb'))
@@ -28,12 +29,23 @@ model = pickle.load(open('../models/pretrained_classifiers/classifier.pkl', 'rb'
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
+    # genres
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
-    
+
+    # categories
+    category_split = (df.groupby(by=['genre'])[categories[1:]].sum()/df[df['related']==1]['related'].sum()*100).reset_index()
+    category_split = pd.melt(category_split, value_vars=categories[1:], 
+                            id_vars='genre', var_name='category', value_name='share (%)')
+    cat_stat = ((df[categories[1:]].sum()/df[df['related']==1]['related'].sum()*100)
+                .reset_index()
+                .rename(columns={'index': 'category',
+                                0: 'share total'})
+            )
+    category_split = category_split.merge(cat_stat, on='category', how='left')
+    category_split = category_split.sort_values(by='share total', ascending=False)
+   
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -52,6 +64,36 @@ def index():
                     'title': "Genre"
                 }
             }
+        },
+        {
+            'data': [
+                Bar(
+                    x=category_split[category_split['genre']=='direct']['category'],
+                    y=category_split[category_split['genre']=='direct']['share (%)'],
+                    name='direct'
+                ),
+                Bar(
+                    x=category_split[category_split['genre']=='news']['category'],
+                    y=category_split[category_split['genre']=='news']['share (%)'],
+                    name='news'
+                ),
+                Bar(
+                    x=category_split[category_split['genre']=='social']['category'],
+                    y=category_split[category_split['genre']=='social']['share (%)'],
+                    name='social'
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Share (%)"
+                },
+                'xaxis': {
+                    'title': "Category"
+                },
+                'barmode': 'stack'
+            },
         }
     ]
     
