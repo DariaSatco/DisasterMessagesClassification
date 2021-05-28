@@ -1,0 +1,16 @@
+.vscode
+*.DS_Store
+*__pycache__
+*.db
+*.pkl
+
+models/pretrained_nlp_models/*
+pretrained_models/
+notebooks/
+
+*.log
+*.sql
+*.sqlite
+
+*.idea
+*.imlg
