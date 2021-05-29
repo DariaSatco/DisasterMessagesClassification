@@ -4,7 +4,7 @@ The Project includes a dataset containing real messages that were sent during di
 
 The project also includes a web app where an emergency worker can input a new message and get classification results in several categories. The web app also displays visualizations of the data. 
 
-![][imgs/data_review.png]
+![Main page](imgs/data_review.png)
 
 ### Instructions:
 0. Download pretrained embedding model. We used [pre-trained vectors](https://code.google.com/archive/p/word2vec/) trained on part of Google News dataset (about 100 billion words). The model contains 300-dimensional vectors. 
