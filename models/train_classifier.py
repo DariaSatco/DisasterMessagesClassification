@@ -228,9 +228,13 @@ class TextPreprocesser(BaseEstimator, TransformerMixin):
                 number of samples and M is the embedding dimensionality
         """
         transformed = []
+        # calculate embeddings
         for text in X:
             transformed.append(self.text_vectorizer.get_text_vector(text))
         transformed = np.array(transformed)
+        
+        # normalize embedding vectors
+        transformed = Normalizer().fit_transform(transformed)
         return transformed
 
 
@@ -239,12 +243,10 @@ def build_model():
     Build pipeline for further fitting
     """
     preprocesser = TextPreprocesser()  # text embeddings
-    normalizer = Normalizer()
     clf = MultiOutputClassifier(LogisticRegression(), n_jobs=-1)
 
-    pipeline = Pipeline([('preprocesser', preprocesser), 
-                         ('normalizer', normalizer),
-                         ('clf', clf)])
+    pipeline = Pipeline([('embeddings', preprocesser), 
+                         ('classificator', clf)])
     return pipeline
 
 
@@ -311,6 +313,25 @@ def save_model(model, model_filepath: str) -> None:
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
+def save_embeddings(model,
+                    X: np.array,
+                    database_filepath: str) -> None:
+    """
+    Save embeddings to database
+
+    Args:
+        X (array) :
+        database_filepath (str) :
+
+    Return:
+        None
+    """
+    embeddings = model['embeddings'].transform(X)
+
+    engine = create_engine(f'sqlite:///{database_filepath}')
+    pd.DataFrame(embeddings).to_sql('Embeddings', engine, index=False, if_exists='replace')
+
+
 def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
@@ -326,6 +347,9 @@ def main():
         
         logger_ml.info('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
+
+        logger_ml.info('Saving embeddings to the database ...')
+        save_embeddings(model, X, database_filepath)
 
         logger_ml.info('Saving model...\n    MODEL: {}'.format(model_filepath))
         save_model(model, model_filepath)
