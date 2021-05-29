@@ -7,7 +7,9 @@ The project also includes a web app where an emergency worker can input a new me
 ![Main page](imgs/data_review.png)
 
 ### Instructions:
-0. Download pretrained embedding model. We used [pre-trained vectors](https://code.google.com/archive/p/word2vec/) trained on part of Google News dataset (about 100 billion words). The model contains 300-dimensional vectors. 
+0. Prepare envirnment and data.
+
+* Download pretrained embedding model. We used [pre-trained vectors](https://code.google.com/archive/p/word2vec/) trained on part of Google News dataset (about 100 billion words). The model contains 300-dimensional vectors. 
 To download data please run the following commands
 ```
 mkdir models/pretrained_nlp_models
@@ -15,6 +17,14 @@ cd models/pretrained_nlp_models
 wget https://s3.amazonaws.com/dl4j-distribution/GoogleNews-vectors-negative300.bin.gz
 gzip -d GoogleNews-vectors-negative300.bin.gz
 ```
+
+* Create environment and install python packages with the following commands
+```
+conda create -n myenv python=3.8
+conda activate myenv
+pip install -r requirements.txt
+```
+
 1. Run the following commands in the project's root directory to set up your database and model.
 
 * To run ETL pipeline that cleans data and stores in database

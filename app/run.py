@@ -163,7 +163,6 @@ def index():
         'layout' : dict(
             title = 'Message representation in 2D space for the most frequent categories',
             showlegend=False,
-            width=1000,
             height=600,
             updatemenus=[
                 dict(
